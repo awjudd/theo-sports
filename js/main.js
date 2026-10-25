@@ -6,6 +6,7 @@
 
   const screens = {
     title: $('#screen-title'),
+    select: $('#screen-select'),
     locker: $('#screen-locker'),
     wheel: $('#screen-wheel'),
     pick: $('#screen-pick'),
@@ -14,11 +15,19 @@
   let current = 'title';
   let time = 0;
 
+  const names = () => chars.selected.map((id) => chars.byId(id).name);
   const MODES = [
-    { id: '1p-henry', label: "1 Player · I'm Henry", humans: [true, false] },
-    { id: '1p-theo', label: "1 Player · I'm Theo", humans: [false, true] },
-    { id: '2p', label: '2 Players', humans: [true, true] },
+    { id: '1p-henry', label: () => "1 Player · I'm " + names()[0], humans: [true, false] },
+    { id: '1p-theo', label: () => "1 Player · I'm " + names()[1], humans: [false, true] },
+    { id: '2p', label: () => '2 Players', humans: [true, true] },
   ];
+  // The sports are written with the placeholder names Henry / Theo; swap in the chosen characters' names at draw time.
+  function fixNames(s) {
+    if (typeof s !== 'string') return s;
+    const [a, b] = names();
+    const map = { Henry: a, HENRY: a.toUpperCase(), Theo: b, THEO: b.toUpperCase() };
+    return s.replace(/HENRY|Henry|THEO|Theo/g, (x) => map[x]);
+  }
   let mode = '1p-henry';
   try { mode = localStorage.getItem('ts.mode') || mode; } catch (e) {}
   if (!MODES.some((m) => m.id === mode)) mode = '1p-henry';
@@ -33,7 +42,7 @@
 
   // ---------- scale menus to fit the window ----------
   const wheelCanvas = $('#wheel');
-  const hiRes = [[titleCanvas0(), 560, 320], [$('#preview'), 320, 400], [wheelCanvas, 560, 610]];
+  const hiRes = [[titleCanvas0(), 560, 320], [$('#preview'), 320, 400], [wheelCanvas, 560, 610], [$('#slot0-cv'), 190, 210], [$('#slot1-cv'), 190, 210]];
   function titleCanvas0() { return $('#title-canvas'); }
   function fitUI() {
     if (current === 'game') return;
@@ -57,12 +66,14 @@
     tg.setTransform(k, 0, 0, k, 0, 0);
     tg.clearRect(0, 0, 560, 320);
     const bounce = (o) => Math.abs(Math.sin(time * 3 + o)) * 14;
-    chars.draw(tg, 'henry', chars.outfits.henry, { x: 175, y: 300, scale: 2.5, t: time, cheer: true, lift: bounce(0) });
-    chars.draw(tg, 'theo', chars.outfits.theo, { x: 385, y: 300, scale: 2.5, t: time + 1, cheer: true, lift: bounce(1.4), facing: -1 });
+    const [a, b] = chars.selected;
+    chars.draw(tg, a, chars.outfits[a], { x: 175, y: 300, scale: 2.5, t: time, cheer: true, lift: bounce(0) });
+    chars.draw(tg, b, chars.outfits[b], { x: 385, y: 300, scale: 2.5, t: time + 1, cheer: true, lift: bounce(1.4), facing: -1 });
   }
 
   // ---------- locker room ----------
-  let lockerWho = 'henry';
+  let lockerSlot = 0;
+  const lockerWho = () => chars.selected[lockerSlot];
   const preview = $('#preview');
   const pg = preview.getContext('2d');
   const optionsEl = $('#options');
@@ -83,7 +94,8 @@
 
   function renderOptions() {
     optionsEl.innerHTML = '';
-    const o = chars.outfits[lockerWho];
+    renderTabs();
+    const o = chars.outfits[lockerWho()];
     for (const slot of chars.SLOTS) {
       const row = document.createElement('div');
       row.className = 'opt';
@@ -135,35 +147,95 @@
     const k = preview.width / 320;
     pg.setTransform(k, 0, 0, k, 0, 0);
     pg.clearRect(0, 0, 320, 400);
-    chars.draw(pg, lockerWho, chars.outfits[lockerWho], { x: 160, y: 365, scale: 2.9, t: time, cheer: false });
+    chars.draw(pg, lockerWho(), chars.outfits[lockerWho()], { x: 160, y: 365, scale: 2.9, t: time, cheer: false });
   }
 
-  document.querySelectorAll('.tab').forEach((b) =>
-    b.addEventListener('click', () => {
-      lockerWho = b.dataset.who;
-      document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('active', x === b));
-      TS.sfx.click();
-      renderOptions();
-    })
-  );
-  $('#btn-random').addEventListener('click', () => { TS.sfx.click(); chars.randomize(lockerWho); renderOptions(); });
-  $('#btn-reset').addEventListener('click', () => { TS.sfx.click(); chars.reset(lockerWho); renderOptions(); });
-
-  const modesEl = $('#modes');
-  function renderModes() {
-    modesEl.innerHTML = '';
-    MODES.forEach((m) => {
+  const tabsEl = $('#tabs');
+  function renderTabs() {
+    tabsEl.innerHTML = '';
+    names().forEach((n, i) => {
       const b = document.createElement('button');
-      b.className = 'mode' + (m.id === mode ? ' sel' : '');
-      b.textContent = m.label;
-      b.addEventListener('click', () => {
-        mode = m.id;
-        try { localStorage.setItem('ts.mode', mode); } catch (e) {}
-        TS.sfx.click(); renderModes();
-      });
-      modesEl.appendChild(b);
+      b.className = 'tab s' + i + (i === lockerSlot ? ' active' : '');
+      b.textContent = n;
+      b.addEventListener('click', () => { lockerSlot = i; TS.sfx.click(); renderOptions(); });
+      tabsEl.appendChild(b);
     });
   }
+  $('#btn-random').addEventListener('click', () => { TS.sfx.click(); chars.randomize(lockerWho()); renderOptions(); });
+  $('#btn-reset').addEventListener('click', () => { TS.sfx.click(); chars.reset(lockerWho()); renderOptions(); });
+
+  function renderModes() {
+    for (const el of [$('#modes'), $('#modes2')]) {
+      el.innerHTML = '';
+      MODES.forEach((m) => {
+        const b = document.createElement('button');
+        b.className = 'mode' + (m.id === mode ? ' sel' : '');
+        b.textContent = m.label();
+        b.addEventListener('click', () => {
+          mode = m.id;
+          try { localStorage.setItem('ts.mode', mode); } catch (e) {}
+          TS.sfx.click(); renderModes();
+        });
+        el.appendChild(b);
+      });
+    }
+  }
+
+  // ---------- character select ----------
+  let selSlot = 0;
+  let selCards = [];
+  const slotCv = [$('#slot0-cv'), $('#slot1-cv')];
+  function buildSelect() {
+    const grid = $('#char-grid');
+    grid.innerHTML = '';
+    selCards = chars.ROSTER.map((r) => {
+      const b = document.createElement('button');
+      b.className = 'char-card';
+      const cv = document.createElement('canvas');
+      cv.width = 120; cv.height = 150;
+      const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = r.name;
+      const badge = document.createElement('span'); badge.className = 'badge';
+      b.append(cv, nm, badge);
+      b.addEventListener('click', () => {
+        chars.setSelected(selSlot, r.id);
+        TS.sfx.click();
+        selSlot = 1 - selSlot;
+        refreshSelect();
+      });
+      grid.appendChild(b);
+      hiRes.push([cv, 120, 150]);
+      return { id: r.id, el: b, cv, badge };
+    });
+    [0, 1].forEach((i) => $('#slot' + i).addEventListener('click', () => { selSlot = i; TS.sfx.click(); refreshSelect(); }));
+  }
+  function refreshSelect() {
+    const nm = names();
+    [0, 1].forEach((i) => {
+      $('#slot' + i).classList.toggle('active', selSlot === i);
+      $('#slot' + i + '-name').textContent = nm[i];
+    });
+    selCards.forEach((c) => {
+      const s = chars.selected.indexOf(c.id);
+      c.el.classList.toggle('s0', s === 0);
+      c.el.classList.toggle('s1', s === 1);
+      c.badge.textContent = s < 0 ? '' : 'P' + (s + 1);
+      c.badge.style.display = s < 0 ? 'none' : '';
+    });
+    $('#sel-hint').textContent = 'Pick a character for Player ' + (selSlot + 1) + ' — or tap a player box to switch';
+    renderModes();
+  }
+  function drawSelect() {
+    const paint = (cv, bw, bh, id, scale, y, extra) => {
+      const g = cv.getContext('2d');
+      const k = cv.width / bw;
+      g.setTransform(k, 0, 0, k, 0, 0);
+      g.clearRect(0, 0, bw, bh);
+      chars.draw(g, id, chars.outfits[id], Object.assign({ x: bw / 2, y, scale, t: time }, extra));
+    };
+    selCards.forEach((c) => paint(c.cv, 120, 150, c.id, 1.05, 138, { cheer: chars.selected.includes(c.id) }));
+    [0, 1].forEach((i) => paint(slotCv[i], 190, 210, chars.selected[i], 1.7, 196, { cheer: true, lift: Math.abs(Math.sin(time * 3 + i)) * 8, facing: i ? -1 : 1 }));
+  }
+  buildSelect();
 
   // ---------- wheel ----------
   const wheelResult = $('#wheel-result');
@@ -190,6 +262,12 @@
     if (gameCanvas.width !== w) { gameCanvas.width = w; gameCanvas.height = Math.round(w * 0.625); }
   }
   window.addEventListener('resize', () => { if (current === 'game') resizeGame(); });
+  for (const fn of ['fillText', 'strokeText']) {
+    const orig = gctx[fn].bind(gctx);
+    gctx[fn] = (t, ...rest) => orig(fixNames(t), ...rest);
+  }
+  const origMeasure = gctx.measureText.bind(gctx);
+  gctx.measureText = (t) => origMeasure(fixNames(t));
   const overlay = $('#overlay');
   const card = $('#overlay-card');
   let game = null;
@@ -199,7 +277,7 @@
   let resWho = null;
 
   function controlsText() {
-    if (mode === '2p') return 'Henry: <b>WASD</b> + <b>Space</b> &nbsp;·&nbsp; Theo: <b>Arrow keys</b> + <b>Enter</b>';
+    if (mode === '2p') return names()[0] + ': <b>WASD</b> + <b>Space</b> &nbsp;·&nbsp; ' + names()[1] + ': <b>Arrow keys</b> + <b>Enter</b>';
     return 'Move: <b>WASD</b> or <b>Arrows</b> &nbsp;·&nbsp; Action: <b>Space</b> or <b>Enter</b>';
   }
 
@@ -208,7 +286,7 @@
     gameId = id;
     origin = from || 'wheel';
     TS.input.humans = humans().slice();
-    const players = ['henry', 'theo'].map((who, i) => ({ who, outfit: chars.outfits[who], human: humans()[i] }));
+    const players = chars.selected.map((who, i) => ({ who, outfit: chars.outfits[who], human: humans()[i] }));
     game = TS.sports[id]({ players });
     show('game');
     showIntro();
@@ -220,7 +298,7 @@
   function showIntro() {
     gstate = 'intro';
     setOverlay(
-      '<h3>' + game.title + '</h3><ul class="help">' + game.help.map((h) => '<li>' + h + '</li>').join('') + '</ul>' +
+      '<h3>' + game.title + '</h3><ul class="help">' + game.help.map((h) => '<li>' + fixNames(h) + '</li>').join('') + '</ul>' +
       '<p class="ctrl">' + controlsText() + '</p>' +
       '<button class="btn big" id="ov-go">Play! <small>(Space)</small></button>'
     );
@@ -252,15 +330,14 @@
   function showResult() {
     gstate = 'result';
     const r = game.result;
-    const names = ['Henry', 'Theo'];
     resWho = r.winner === null ? null : r.winner;
-    const title = r.winner === null ? "It's a tie!" : names[r.winner] + ' wins!';
+    const title = r.winner === null ? "It's a tie!" : names()[r.winner] + ' wins!';
     const humanWon = r.winner !== null && humans()[r.winner];
     if (r.winner === null) TS.sfx.beep(); else if (humanWon || mode === '2p') TS.sfx.win(); else TS.sfx.lose();
     setOverlay(
       '<h3>' + title + '</h3>' +
       '<canvas id="res-canvas" width="420" height="230"></canvas>' +
-      '<p>' + (r.summary || '') + '</p>' +
+      '<p>' + fixNames(r.summary || '') + '</p>' +
       '<div class="row"><button class="btn" id="ov-again">↻ Rematch</button>' +
       '<button class="btn alt" id="ov-spin">' + againLabel() + '</button>' +
       '<button class="btn alt" id="ov-locker">👕 Locker room</button></div>'
@@ -275,7 +352,7 @@
     const g = resCanvas.getContext('2d');
     g.clearRect(0, 0, resCanvas.width, resCanvas.height);
     const r = game.result;
-    const spots = [['henry', 110], ['theo', 310]];
+    const spots = [[chars.selected[0], 110], [chars.selected[1], 310]];
     spots.forEach(([who, x], i) => {
       const won = r.winner === null || r.winner === i;
       chars.draw(g, who, chars.outfits[who], {
@@ -290,7 +367,8 @@
   function toNext() { leaveGame(); if (origin === 'pick') goPick(); else goWheel(); }
   function toLocker() { leaveGame(); goLocker(); }
 
-  function goLocker() { show('locker'); renderOptions(); renderModes(); }
+  function goLocker() { show('locker'); lockerSlot = 0; renderOptions(); renderModes(); }
+  function goSelect() { show('select'); selSlot = 0; refreshSelect(); }
   function goPick() {
     show('pick');
     const grid = $('#sport-grid');
@@ -307,7 +385,11 @@
   function goWheel() { show('wheel'); wheelResult.innerHTML = '&nbsp;'; pendingSport = null; wheelTimer = 0; }
 
   // ---------- wiring ----------
-  $('#btn-play').addEventListener('click', () => { TS.sfx.click(); goLocker(); });
+  $('#btn-play').addEventListener('click', () => { TS.sfx.click(); goSelect(); });
+  $('#btn-chars').addEventListener('click', () => { TS.sfx.click(); goSelect(); });
+  $('#btn-sel-dress').addEventListener('click', () => { TS.sfx.click(); goLocker(); });
+  $('#btn-sel-spin').addEventListener('click', () => { TS.sfx.click(); goWheel(); });
+  $('#btn-sel-pick').addEventListener('click', () => { TS.sfx.click(); goPick(); });
   $('#btn-pick').addEventListener('click', () => { TS.sfx.click(); goPick(); });
   $('#btn-pick-back').addEventListener('click', () => { TS.sfx.click(); goLocker(); });
   $('#btn-spin').addEventListener('click', () => { TS.sfx.click(); goWheel(); });
@@ -346,6 +428,7 @@
     fitUI();
 
     if (current === 'title') drawTitle();
+    else if (current === 'select') drawSelect();
     else if (current === 'locker') drawPreview();
     else if (current === 'wheel') {
       if (TS.input.pressed('Space') || TS.input.pressed('Enter')) doSpin();
@@ -375,7 +458,7 @@
   }
 
   // expose for debugging / automated tests
-  TS.app = { startSport, goLocker, goWheel, goPick, get game() { return game; }, get state() { return gstate; }, beginPlay };
+  TS.app = { startSport, goLocker, goWheel, goPick, goSelect, get game() { return game; }, get state() { return gstate; }, beginPlay };
 
   requestAnimationFrame(frame);
 })();

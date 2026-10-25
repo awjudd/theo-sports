@@ -7,7 +7,7 @@
     '#e63946', '#f77f00', '#fcbf49', '#6a994e', '#2a9d8f', '#4cc9f0',
     '#3a86ff', '#8338ec', '#ff70a6', '#ffffff', '#2b2d42', '#8d5524',
   ];
-  const SKINS = ['#ffdbb4', '#f1c27d', '#e0ac69', '#c68642', '#8d5524', '#5c3a21'];
+  const SKINS = ['#ffdbb4', '#f1c27d', '#e0ac69', '#c68642', '#8d5524', '#5c3a21', '#b8c4d4', '#8bd17c', '#7ec8f7', '#c3a6f0'];
   const HAIRS = ['#1a1a1a', '#2b1b0e', '#6b4423', '#c69c3a', '#f2d16b', '#d14a2a', '#9a9a9a', '#e87ac2'];
 
   const SLOTS = [
@@ -19,41 +19,46 @@
     { id: 'glasses', label: 'Glasses', styles: [['none', 'None'], ['round', 'Round'], ['shades', 'Sunglasses'], ['goggles', 'Goggles']] },
   ];
 
-  const HAIR_STYLES = [['spiky', 'Spiky'], ['sidepart', 'Side part'], ['mop', 'Mop top'], ['buzz', 'Buzz cut'], ['curly', 'Curly'], ['mohawk', 'Mohawk'], ['afro', 'Afro'], ['bald', 'Bald']];
+  const HAIR_STYLES = [['spiky', 'Spiky'], ['sidepart', 'Side part'], ['mop', 'Mop top'], ['buzz', 'Buzz cut'], ['curly', 'Curly'], ['mohawk', 'Mohawk'], ['afro', 'Afro'], ['bald', 'Bald'],
+    ['ponytail', 'Ponytail'], ['pigtails', 'Pigtails'], ['long', 'Long hair'], ['bob', 'Bob cut']];
+
+  const ROSTER = [
+    { id: 'henry', name: 'Henry', number: '8' },
+    { id: 'theo', name: 'Theo', number: '4' },
+    { id: 'mia', name: 'Mia', number: '7' },
+    { id: 'max', name: 'Max', number: '10' },
+    { id: 'zoe', name: 'Zoe', number: '3' },
+    { id: 'leo', name: 'Leo', number: '5' },
+    { id: 'ava', name: 'Ava', number: '9' },
+    { id: 'finn', name: 'Finn', number: '2' },
+    { id: 'bolt', name: 'Bolt', number: '0' },
+    { id: 'pip', name: 'Pip', number: '42' },
+  ];
 
   const DEFAULTS = {
-    henry: {
-      hat: { s: 'cap', c: '#3a86ff' },
-      shirt: { s: 'jersey', c: '#e63946' },
-      necklace: { s: 'chain', c: '#fcbf49' },
-      pants: { s: 'shorts', c: '#2b2d42' },
-      shoes: { s: 'sneakers', c: '#ffffff' },
-      glasses: { s: 'none', c: '#2b2d42' },
-      hair: '#6b4423',
-      hairStyle: 'spiky',
-      skin: '#f1c27d',
-    },
-    theo: {
-      hat: { s: 'beanie', c: '#f77f00' },
-      shirt: { s: 'stripes', c: '#4cc9f0' },
-      necklace: { s: 'pendant', c: '#8338ec' },
-      pants: { s: 'jogger', c: '#3a86ff' },
-      shoes: { s: 'sneakers', c: '#e63946' },
-      glasses: { s: 'none', c: '#2b2d42' },
-      hair: '#f2d16b',
-      hairStyle: 'sidepart',
-      skin: '#ffdbb4',
-    },
+    henry: { hat: { s: 'cap', c: '#3a86ff' }, shirt: { s: 'jersey', c: '#e63946' }, necklace: { s: 'chain', c: '#fcbf49' }, pants: { s: 'shorts', c: '#2b2d42' }, shoes: { s: 'sneakers', c: '#ffffff' }, glasses: { s: 'none', c: '#2b2d42' }, hair: '#6b4423', hairStyle: 'spiky', skin: '#f1c27d' },
+    theo: { hat: { s: 'beanie', c: '#f77f00' }, shirt: { s: 'stripes', c: '#4cc9f0' }, necklace: { s: 'pendant', c: '#8338ec' }, pants: { s: 'jogger', c: '#3a86ff' }, shoes: { s: 'sneakers', c: '#e63946' }, glasses: { s: 'none', c: '#2b2d42' }, hair: '#f2d16b', hairStyle: 'sidepart', skin: '#ffdbb4' },
+    mia: { hat: { s: 'headband', c: '#ff70a6' }, shirt: { s: 'tee', c: '#ff70a6' }, necklace: { s: 'pearls', c: '#ffffff' }, pants: { s: 'shorts', c: '#8338ec' }, shoes: { s: 'sneakers', c: '#ffffff' }, glasses: { s: 'none', c: '#2b2d42' }, hair: '#2b1b0e', hairStyle: 'ponytail', skin: '#e0ac69' },
+    max: { hat: { s: 'cap', c: '#6a994e' }, shirt: { s: 'hoodie', c: '#2b2d42' }, necklace: { s: 'none', c: '#fcbf49' }, pants: { s: 'jogger', c: '#2b2d42' }, shoes: { s: 'boots', c: '#8d5524' }, glasses: { s: 'none', c: '#2b2d42' }, hair: '#1a1a1a', hairStyle: 'buzz', skin: '#c68642' },
+    zoe: { hat: { s: 'none', c: '#ffffff' }, shirt: { s: 'stripes', c: '#f77f00' }, necklace: { s: 'pendant', c: '#4cc9f0' }, pants: { s: 'long', c: '#3a86ff' }, shoes: { s: 'sneakers', c: '#ff70a6' }, glasses: { s: 'round', c: '#e63946' }, hair: '#d14a2a', hairStyle: 'pigtails', skin: '#ffdbb4' },
+    leo: { hat: { s: 'beanie', c: '#4cc9f0' }, shirt: { s: 'jersey', c: '#6a994e' }, necklace: { s: 'medal', c: '#fcbf49' }, pants: { s: 'shorts', c: '#ffffff' }, shoes: { s: 'cleats', c: '#2b2d42' }, glasses: { s: 'shades', c: '#fcbf49' }, hair: '#6b4423', hairStyle: 'curly', skin: '#8d5524' },
+    ava: { hat: { s: 'crown', c: '#fcbf49' }, shirt: { s: 'tee', c: '#8338ec' }, necklace: { s: 'pearls', c: '#ffffff' }, pants: { s: 'long', c: '#ff70a6' }, shoes: { s: 'sneakers', c: '#ffffff' }, glasses: { s: 'none', c: '#2b2d42' }, hair: '#f2d16b', hairStyle: 'long', skin: '#f1c27d' },
+    finn: { hat: { s: 'cowboy', c: '#8d5524' }, shirt: { s: 'tank', c: '#e63946' }, necklace: { s: 'bandana', c: '#3a86ff' }, pants: { s: 'overalls', c: '#3a86ff' }, shoes: { s: 'boots', c: '#2b2d42' }, glasses: { s: 'none', c: '#2b2d42' }, hair: '#d14a2a', hairStyle: 'curly', skin: '#ffdbb4' },
+    bolt: { hat: { s: 'none', c: '#ffffff' }, shirt: { s: 'jersey', c: '#ffffff' }, necklace: { s: 'chain', c: '#fcbf49' }, pants: { s: 'long', c: '#2b2d42' }, shoes: { s: 'boots', c: '#e63946' }, glasses: { s: 'goggles', c: '#4cc9f0' }, hair: '#2b2d42', hairStyle: 'bald', skin: '#b8c4d4' },
+    pip: { hat: { s: 'none', c: '#ffffff' }, shirt: { s: 'hoodie', c: '#8338ec' }, necklace: { s: 'pendant', c: '#fcbf49' }, pants: { s: 'jogger', c: '#2a9d8f' }, shoes: { s: 'sneakers', c: '#fcbf49' }, glasses: { s: 'none', c: '#2b2d42' }, hair: '#2b2d42', hairStyle: 'bald', skin: '#8bd17c' },
   };
 
   const clone = (o) => JSON.parse(JSON.stringify(o));
-  const outfits = { henry: clone(DEFAULTS.henry), theo: clone(DEFAULTS.theo) };
+  const outfits = {};
+  ROSTER.forEach((r) => { outfits[r.id] = clone(DEFAULTS[r.id]); });
+  const byId = (id) => ROSTER.find((r) => r.id === id) || ROSTER[0];
+  const selected = ['henry', 'theo'];
 
   function load() {
     try {
       const saved = JSON.parse(localStorage.getItem('ts.outfits') || 'null');
       if (saved) {
-        for (const who of ['henry', 'theo']) {
+        for (const who of ROSTER.map((r) => r.id)) {
           const s = saved[who];
           if (!s) continue;
           for (const slot of SLOTS) {
@@ -65,6 +70,16 @@
         }
       }
     } catch (e) { /* ignore corrupt storage */ }
+    try {
+      const sel = JSON.parse(localStorage.getItem('ts.sel') || 'null');
+      if (Array.isArray(sel) && sel.length === 2 && sel[0] !== sel[1] && sel.every((id) => ROSTER.some((r) => r.id === id))) { selected[0] = sel[0]; selected[1] = sel[1]; }
+    } catch (e) {}
+  }
+  function setSelected(slot, id) {
+    const other = 1 - slot;
+    if (selected[other] === id) selected[other] = selected[slot]; // picking the other player's character swaps them
+    selected[slot] = id;
+    try { localStorage.setItem('ts.sel', JSON.stringify(selected)); } catch (e) {}
   }
   function save() {
     try { localStorage.setItem('ts.outfits', JSON.stringify(outfits)); } catch (e) {}
@@ -173,8 +188,8 @@
     if (s === 'jersey') {
       g.fillStyle = '#ffffffee'; g.fillRect(-w, -33, w * 2, 3);
       g.fillStyle = shade(c, c === '#ffffff' ? -0.6 : -0.45);
-      g.font = 'bold 20px Arial Black, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(who === 'henry' ? '8' : '4', 0, -48);
+      g.font = (byId(who).number.length > 1 ? 'bold 15px' : 'bold 20px') + ' Arial Black, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(byId(who).number, 0, -48);
     }
     if (s === 'hoodie') {
       g.fillStyle = shade(c, -0.18); rr(g, -9.5, -47, 19, 10, 4); g.fill();
@@ -240,6 +255,17 @@
     }
   }
 
+  // Long hair hangs behind the shoulders, so it is drawn before the torso.
+  function hairBehind(g, style, col) {
+    g.fillStyle = col;
+    if (style === 'long') { rr(g, -21.5, -93, 43, 58, 16); g.fill(); }
+    else if (style === 'bob') { rr(g, -22, -92, 44, 30, 13); g.fill(); }
+    else if (style === 'ponytail') { g.beginPath(); g.moveTo(14, -95); g.bezierCurveTo(40, -100, 44, -62, 26, -52); g.bezierCurveTo(30, -70, 24, -84, 14, -85); g.closePath(); g.fill(); }
+    else if (style === 'pigtails') {
+      for (const sd of [-1, 1]) { g.beginPath(); g.ellipse(sd * 27, -74, 8, 19, sd * 0.22, 0, TAU); g.fill(); }
+    }
+  }
+
   // Hair behind the head (only the afro needs this).
   function hairBack(g, style, col) {
     if (style !== 'afro') return;
@@ -252,6 +278,9 @@
   // Hair on the front of the head.
   function hair(g, style, col) {
     if (style === 'bald') return;
+    const decor = style;
+    if (style === 'long' || style === 'bob') style = 'mop';
+    else if (style === 'ponytail' || style === 'pigtails') style = 'cap';
     g.fillStyle = col;
     if (style === 'mohawk') {
       g.globalAlpha = 0.35; g.beginPath(); g.arc(0, -82, 19.6, Math.PI, TAU); g.lineTo(17, -90); g.quadraticCurveTo(0, -88, -17, -90); g.closePath(); g.fill(); g.globalAlpha = 1;
@@ -297,7 +326,12 @@
       g.strokeStyle = shade(col, -0.35); g.lineWidth = 1.4; g.lineCap = 'round';
       g.beginPath(); g.moveTo(-6, -85); g.quadraticCurveTo(-3, -95, 4, -100); g.stroke();
     } else if (style === 'mop') {
-      rr(g, -21, -88, 5, 10, 2.5); g.fill(); rr(g, 16, -88, 5, 10, 2.5); g.fill();
+      if (decor === 'mop') { rr(g, -21, -88, 5, 10, 2.5); g.fill(); rr(g, 16, -88, 5, 10, 2.5); g.fill(); }
+    }
+    if (decor === 'ponytail') { g.fillStyle = '#ff70a6'; g.beginPath(); g.ellipse(17, -93, 4, 6, 0.5, 0, TAU); g.fill(); }
+    if (decor === 'pigtails') { g.fillStyle = '#ff70a6'; for (const sd of [-1, 1]) { g.beginPath(); g.arc(sd * 22, -88, 4.5, 0, TAU); g.fill(); } }
+    if (decor === 'long' || decor === 'bob') {
+      g.fillStyle = col; rr(g, -21, -88, 6, 17, 3); g.fill(); rr(g, 15, -88, 6, 17, 3); g.fill();
     }
   }
 
@@ -412,6 +446,7 @@
     g.translate(0, -lift);
     legs(g, o, sw);
     g.translate(0, -bob);
+    hairBehind(g, o.hairStyle, o.hair);
 
     let armL = 0.14 + sw * 0.5;
     let armR = -0.14 - sw * 0.5;
@@ -434,6 +469,6 @@
     g.restore();
   }
 
-  TS.chars = { PALETTE, SKINS, HAIRS, HAIR_STYLES, SLOTS, DEFAULTS, outfits, load, save, reset, randomize, draw, shade, rr };
+  TS.chars = { PALETTE, SKINS, HAIRS, HAIR_STYLES, SLOTS, DEFAULTS, ROSTER, byId, selected, setSelected, outfits, load, save, reset, randomize, draw, shade, rr };
   load();
 })();

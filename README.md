@@ -2,7 +2,8 @@
 
 A browser game — no build step, no dependencies. Open `index.html` (or serve the folder with any static server, e.g. `python3 -m http.server`).
 
-- **Locker room** – dress Henry and Theo: hats, shirts, necklaces, pants, shoes, glasses, hair and skin. Outfits are saved in `localStorage`.
+- **Characters** – ten to choose from (Henry, Theo, Mia, Max, Zoe, Leo, Ava, Finn, Bolt the robot and Pip the alien). The character-select screen picks who plays as Player 1 and Player 2.
+- **Locker room** – dress Henry and Theo: hats, shirts, necklaces, pants, shoes, glasses, hair style (twelve styles) and skin. Outfits and your character picks are saved in `localStorage`.
 - **Wheel** – spin to pick one of twenty-six games: hockey, baseball, soccer, lacrosse, disc golf, basketball (shooting contest), bowling, field goals, archery, hurdles, penalty shootout, sumo, swimming, tug of war, dodgeball, mini putt, air hockey, volleyball, whack-a-mole, quick draw, Simon says, cornhole, darts, skiing, racing and boxing.
 - **Modes** – 1 player (as Henry or Theo, the other is a CPU) or 2 players on one keyboard.
 - **Choose a Game** – skip the wheel and pick any of the twenty-six games from a menu.
