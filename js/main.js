@@ -8,6 +8,7 @@
     title: $('#screen-title'),
     locker: $('#screen-locker'),
     wheel: $('#screen-wheel'),
+    pick: $('#screen-pick'),
     game: $('#screen-game'),
   };
   let current = 'title';
@@ -201,8 +202,10 @@
     return 'Move: <b>WASD</b> or <b>Arrows</b> &nbsp;·&nbsp; Action: <b>Space</b> or <b>Enter</b>';
   }
 
-  function startSport(id) {
+  let origin = 'wheel';
+  function startSport(id, from) {
     gameId = id;
+    origin = from || 'wheel';
     TS.input.humans = humans().slice();
     const players = ['henry', 'theo'].map((who, i) => ({ who, outfit: chars.outfits[who], human: humans()[i] }));
     game = TS.sports[id]({ players });
@@ -236,11 +239,11 @@
     setOverlay(
       '<h3>Paused</h3>' +
       '<button class="btn big" id="ov-resume">Resume</button>' +
-      '<div class="row"><button class="btn small alt" id="ov-spin">🎡 Spin again</button>' +
+      '<div class="row"><button class="btn small alt" id="ov-spin">' + againLabel() + '</button>' +
       '<button class="btn small alt" id="ov-locker">👕 Locker room</button></div>'
     );
     $('#ov-resume').addEventListener('click', resume);
-    $('#ov-spin').addEventListener('click', toWheel);
+    $('#ov-spin').addEventListener('click', toNext);
     $('#ov-locker').addEventListener('click', toLocker);
   }
   function resume() { if (gstate === 'paused') { hideOverlay(); gstate = 'playing'; } }
@@ -258,12 +261,12 @@
       '<canvas id="res-canvas" width="420" height="230"></canvas>' +
       '<p>' + (r.summary || '') + '</p>' +
       '<div class="row"><button class="btn" id="ov-again">↻ Rematch</button>' +
-      '<button class="btn alt" id="ov-spin">🎡 Spin again</button>' +
+      '<button class="btn alt" id="ov-spin">' + againLabel() + '</button>' +
       '<button class="btn alt" id="ov-locker">👕 Locker room</button></div>'
     );
     resCanvas = $('#res-canvas');
-    $('#ov-again').addEventListener('click', () => startSport(gameId));
-    $('#ov-spin').addEventListener('click', toWheel);
+    $('#ov-again').addEventListener('click', () => startSport(gameId, origin));
+    $('#ov-spin').addEventListener('click', toNext);
     $('#ov-locker').addEventListener('click', toLocker);
   }
   function drawResult() {
@@ -282,14 +285,30 @@
   }
 
   function leaveGame() { game = null; gstate = 'none'; resCanvas = null; hideOverlay(); }
-  function toWheel() { leaveGame(); goWheel(); }
+  const againLabel = () => (origin === 'pick' ? '🎮 Pick a game' : '🎡 Spin again');
+  function toNext() { leaveGame(); if (origin === 'pick') goPick(); else goWheel(); }
   function toLocker() { leaveGame(); goLocker(); }
 
   function goLocker() { show('locker'); renderOptions(); renderModes(); }
+  function goPick() {
+    show('pick');
+    const grid = $('#sport-grid');
+    grid.innerHTML = '';
+    TS.SPORT_LIST.forEach((sp) => {
+      const b = document.createElement('button');
+      b.className = 'sport-card';
+      b.style.setProperty('--c', sp.color);
+      b.innerHTML = '<span class="ico">' + sp.icon + '</span><span class="nm">' + sp.label + '</span><span class="bl">' + sp.blurb + '</span>';
+      b.addEventListener('click', () => { TS.sfx.click(); startSport(sp.id, 'pick'); });
+      grid.appendChild(b);
+    });
+  }
   function goWheel() { show('wheel'); wheelResult.innerHTML = '&nbsp;'; pendingSport = null; wheelTimer = 0; }
 
   // ---------- wiring ----------
   $('#btn-play').addEventListener('click', () => { TS.sfx.click(); goLocker(); });
+  $('#btn-pick').addEventListener('click', () => { TS.sfx.click(); goPick(); });
+  $('#btn-pick-back').addEventListener('click', () => { TS.sfx.click(); goLocker(); });
   $('#btn-spin').addEventListener('click', () => { TS.sfx.click(); goWheel(); });
   $('#btn-back-locker').addEventListener('click', () => { TS.sfx.click(); goLocker(); });
   $('#btn-dospin').addEventListener('click', doSpin);
@@ -355,7 +374,7 @@
   }
 
   // expose for debugging / automated tests
-  TS.app = { startSport, goLocker, goWheel, get game() { return game; }, get state() { return gstate; }, beginPlay };
+  TS.app = { startSport, goLocker, goWheel, goPick, get game() { return game; }, get state() { return gstate; }, beginPlay };
 
   requestAnimationFrame(frame);
 })();

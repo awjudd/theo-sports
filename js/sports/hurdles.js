@@ -11,7 +11,7 @@
   function create(ctx) {
     const P = ctx.players;
     const S = {
-      state: 'intro', t: 0, cd: 3.4, time: 0, cam: 0, msg: null, done: 0, finishT: 0,
+      state: 'intro', t: 0, cd: 3.4, time: 0, cam: [0, 0], msg: null, done: 0, finishT: 0,
       r: P.map((p, i) => ({
         idx: i, x: 0, v: 0, lastDir: 0, steps: 0, air: -1, stumble: 0, next: 0, finished: false, ft: 0,
         cpuStep: U.rnd(0.1, 0.2), cpuSkill: U.rnd(0.9, 1.05), cpuJump: null, flash: null, t: Math.random() * 3,
@@ -88,19 +88,21 @@
         S.r.forEach((r) => { if (!r.finished) r.ft = S.time + (LEN - r.x) / 6; });
         S.state = 'over'; S.t = 0;
       }
-      const lead = Math.max(S.r[0].x, S.r[1].x);
-      const camT = U.clamp(lead * PX - 360, 0, LEN * PX - 560);
-      S.cam += (camT - S.cam) * Math.min(1, dt * 6);
+      // each lane has its own camera, so both tracks stay on screen whoever is ahead
+      S.r.forEach((r, i) => {
+        const camT = U.clamp(r.x * PX - 300, 0, LEN * PX - 560);
+        S.cam[i] += (camT - S.cam[i]) * Math.min(1, dt * 8);
+      });
     }
 
     // ---------- drawing ----------
-    function sx(m) { return m * PX - S.cam + 120; }
+    function sx(m, i) { return m * PX - S.cam[i] + 120; }
     function drawTrack(g) {
       const sky = g.createLinearGradient(0, 0, 0, 150);
       sky.addColorStop(0, '#5aa9e6'); sky.addColorStop(1, '#cfeaff');
       g.fillStyle = sky; g.fillRect(0, 0, 960, 150);
       for (let i = 0; i < 80; i++) {
-        const x = ((i * 15 - S.cam * 0.3) % 1200 + 1200) % 1200 - 120;
+        const x = ((i * 15 - Math.max(S.cam[0], S.cam[1]) * 0.3) % 1200 + 1200) % 1200 - 120;
         g.fillStyle = ['#e63946', '#fcbf49', '#f1faee', '#4cc9f0', '#ff70a6'][i % 5]; g.globalAlpha = 0.7;
         g.beginPath(); g.arc(x, 100 + (i % 4) * 11, 6, 0, TAU); g.fill();
       }
@@ -113,18 +115,21 @@
         g.fillStyle = '#d6644a'; g.fillRect(0, y - 96, 960, 8);
         g.fillStyle = '#ffffffcc'; g.fillRect(0, y - 98, 960, 4); g.fillRect(0, y + 32, 960, 4);
       }
-      // distance marks
-      for (let m = 0; m <= LEN; m += 10) {
-        const x = sx(m);
-        if (x < -40 || x > 1000) continue;
-        g.fillStyle = '#ffffff88'; g.fillRect(x - 1, 154, 2, 26);
-        U.text(g, m + 'm', x, 168, 12, '#fff', 'center');
-      }
-      // finish line
-      const fx = sx(LEN);
-      for (let r = 0; r < 12; r++) for (let c = 0; c < 2; c++) {
-        g.fillStyle = (r + c) % 2 ? '#111' : '#fff';
-        g.fillRect(fx + c * 10, 154 + r * 36, 10, 36);
+      for (let i = 0; i < 2; i++) {
+        const y = LANES[i];
+        for (let m = 0; m <= LEN; m += 10) {
+          const x = sx(m, i);
+          if (x < -40 || x > 1000) continue;
+          g.fillStyle = '#ffffff88'; g.fillRect(x - 1, y - 96, 2, 14);
+          U.text(g, m + 'm', x, y - 74, 12, '#ffffffcc', 'center');
+        }
+        const fx = sx(LEN, i);
+        for (let r = 0; r < 13; r++) for (let c = 0; c < 2; c++) {
+          g.fillStyle = (r + c) % 2 ? '#111' : '#fff';
+          g.fillRect(fx + c * 10, y - 96 + r * 10, 10, 10);
+        }
+        U.panel(g, 10, y - 90, 118, 24, 12, '#0b132b99');
+        U.text(g, U.NAMES[i].toUpperCase() + ' ' + Math.max(0, Math.min(LEN, S.r[i].x)).toFixed(0) + ' m', 22, y - 78, 13, U.TEAM[i]);
       }
     }
     function drawHurdle(g, x, y, i) {
@@ -137,25 +142,19 @@
       drawTrack(g);
       for (let i = 0; i < 2; i++) {
         const r = S.r[i], y = LANES[i];
-        HURDLES.forEach((h, k) => { if (!(r.next > k && false)) drawHurdle(g, sx(h), y + 14, k); });
+        HURDLES.forEach((h, k) => drawHurdle(g, sx(h, i), y + 14, k));
         const air = r.air >= 0 ? Math.sin((r.air / AIR) * Math.PI) * 52 : 0;
         const stumbling = r.stumble > 0;
         TS.chars.draw(g, P[i].who, P[i].outfit, {
-          x: sx(r.x), y: y + 22, scale: 1.0, t: r.t * (0.4 + r.v * 0.18), moving: r.v > 0.6 && !stumbling,
+          x: sx(r.x, i), y: y + 22, scale: 1.0, t: r.t * (0.4 + r.v * 0.18), moving: r.v > 0.6 && !stumbling,
           lift: air, arm: r.air >= 0 ? 1.0 : 0, mood: stumbling ? 'sad' : (r.finished ? 'cheer' : 'happy'), cheer: r.finished && !stumbling,
         });
-        const px = sx(r.x);
-        if (px >= 20 && px <= 940) U.text(g, U.NAMES[i].toUpperCase(), px, y + 48, 12, U.TEAM[i], 'center');
-        else {
-          const behind = Math.abs(Math.max(S.r[0].x, S.r[1].x) - r.x);
-          U.panel(g, 10, y - 20, 150, 30, 15);
-          U.text(g, '◀ ' + U.NAMES[i].toUpperCase() + ' ' + behind.toFixed(0) + ' m back', 22, y - 5, 14, U.TEAM[i]);
-        }
+        const px = sx(r.x, i);
         if (r.flash) U.text(g, r.flash.text, px, y - 92, 22, r.flash.c, 'center', 900);
         // next-hurdle cue for humans
         const nh = HURDLES[r.next];
         if (P[i].human && nh !== undefined && S.state === 'race' && nh - r.x < 7 && nh - r.x > 0 && r.air < 0) {
-          U.text(g, 'JUMP!', sx(nh) - 10, y - 20, 16, '#fff', 'center', 900);
+          U.text(g, 'JUMP!', sx(nh, i) - 10, y - 20, 16, '#fff', 'center', 900);
         }
       }
       // progress bar

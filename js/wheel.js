@@ -3,16 +3,16 @@
   const TS = (window.TS = window.TS || {});
 
   const SPORTS = [
-    { id: 'hockey', label: 'Hockey', icon: '🏒', color: '#4cc9f0' },
-    { id: 'baseball', label: 'Baseball', icon: '⚾', color: '#e63946' },
-    { id: 'basketball', label: 'Basketball', icon: '🏀', color: '#f77f00' },
-    { id: 'soccer', label: 'Soccer', icon: '⚽', color: '#6a994e' },
-    { id: 'bowling', label: 'Bowling', icon: '🎳', color: '#8338ec' },
-    { id: 'discgolf', label: 'Disc Golf', icon: '🥏', color: '#e9a100' },
-    { id: 'football', label: 'Field Goals', icon: '🏈', color: '#8d5524' },
-    { id: 'lacrosse', label: 'Lacrosse', icon: '🥍', color: '#2a9d8f' },
-    { id: 'archery', label: 'Archery', icon: '🏹', color: '#d6336c' },
-    { id: 'hurdles', label: 'Hurdles', icon: '🏃', color: '#3a86ff' },
+    { id: 'hockey', blurb: 'Slap the puck into the net', label: 'Hockey', icon: '🏒', color: '#4cc9f0' },
+    { id: 'baseball', blurb: 'Bat and pitch for runs', label: 'Baseball', icon: '⚾', color: '#e63946' },
+    { id: 'basketball', blurb: 'Sink shots from the arc', label: 'Basketball', icon: '🏀', color: '#f77f00' },
+    { id: 'soccer', blurb: 'Dribble, kick, score', label: 'Soccer', icon: '⚽', color: '#6a994e' },
+    { id: 'bowling', blurb: 'Roll for strikes', label: 'Bowling', icon: '🎳', color: '#8338ec' },
+    { id: 'discgolf', blurb: 'Throw round three holes', label: 'Disc Golf', icon: '🥏', color: '#e9a100' },
+    { id: 'football', blurb: 'Kick through the uprights', label: 'Field Goals', icon: '🏈', color: '#8d5524' },
+    { id: 'lacrosse', blurb: 'Scoop, throw, score', label: 'Lacrosse', icon: '🥍', color: '#2a9d8f' },
+    { id: 'archery', blurb: 'Steady aim, hit the bullseye', label: 'Archery', icon: '🏹', color: '#d6336c' },
+    { id: 'hurdles', blurb: 'Sprint and jump to win', label: 'Hurdles', icon: '🏃', color: '#3a86ff' },
   ];
   const TAU = Math.PI * 2;
 

@@ -5,6 +5,7 @@ A browser game — no build step, no dependencies. Open `index.html` (or serve t
 - **Locker room** – dress Henry and Theo: hats, shirts, necklaces, pants, shoes, glasses, hair and skin. Outfits are saved in `localStorage`.
 - **Wheel** – spin to pick one of ten sports: hockey, baseball, soccer, lacrosse, disc golf, basketball (shooting contest), bowling, field goals, archery and hurdles.
 - **Modes** – 1 player (as Henry or Theo, the other is a CPU) or 2 players on one keyboard.
+- **Choose a Game** – skip the wheel and pick any of the ten sports from a menu.
 
 ## Controls
 
