@@ -28,6 +28,10 @@
     { id: 'skiing', blurb: 'Downhill slalom', label: 'Skiing', icon: '⛷️', color: '#38bdf8' },
     { id: 'racing', blurb: 'Three laps, turbo boost', label: 'Racing', icon: '🏎️', color: '#dc2626' },
     { id: 'boxing', blurb: 'Jab, guard, knock out', label: 'Boxing', icon: '🥊', color: '#be123c' },
+    { id: 'curling', blurb: 'Slide, sweep, score', label: 'Curling', icon: '🥌', color: '#4895ef' },
+    { id: 'longdrive', blurb: 'Smash it down the fairway', label: 'Long Drive', icon: '🏌️', color: '#52b788' },
+    { id: 'jumprope', blurb: 'Hop it faster and faster', label: 'Jump Rope', icon: '🪘', color: '#f72585' },
+    { id: 'fishing', blurb: 'Hook the big one', label: 'Fishing', icon: '🎣', color: '#277da1' },
     { id: 'hurdles', blurb: 'Sprint and jump to win', label: 'Hurdles', icon: '🏃', color: '#3a86ff' },
   ];
   const TAU = Math.PI * 2;
