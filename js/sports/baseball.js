@@ -26,10 +26,21 @@
       state: 'intro', t: 0, inning: 1, half: 0, outs: 0, strikes: 0, balls: 0,
       bases: [false, false, false], runs: [0, 0], pitch: null, swing: -1, banner: null, flight: null,
       pending: null, endHalf: false, anim: 0, fieldT: 0,
+      reticle: { x: 0, y: 0 }, target: null, chooseT: 0,
     };
 
     const batterIdx = () => S.half;
     const batterHuman = () => P[S.half].human;
+    const pitcherIdx = () => 1 - S.half;
+    const pitcherHuman = () => P[1 - S.half].human;
+    const ZONE_X = 42, ZONE_Y = 39;
+
+    // Human pitchers pick a spot first; CPU pitchers go straight to the windup.
+    function nextPitchState() {
+      S.pitch = null; S.flight = null; S.swing = -1; S.target = null;
+      if (pitcherHuman()) { S.state = 'choose'; S.t = 0; S.chooseT = 0; S.reticle = { x: 0, y: 0 }; }
+      else { S.state = 'windup'; S.t = 0; }
+    }
 
     function startHalf() {
       S.outs = 0; S.strikes = 0; S.balls = 0; S.bases = [false, false, false]; S.endHalf = false;
@@ -39,20 +50,30 @@
     startHalf();
 
     function newPitch() {
-      const isBall = Math.random() < 0.28;
-      const curve = Math.random() < 0.35;
-      const dur = curve ? rnd(1.0, 1.2) : rnd(0.75, 0.95);
+      let endX, endY, curve, dur;
       const side = Math.random() < 0.5 ? -1 : 1;
+      if (S.target) {
+        // the human pitcher's aim, plus a little wobble
+        endX = S.target.x + (Math.random() + Math.random() - 1) * 14;
+        endY = S.target.y + (Math.random() + Math.random() - 1) * 11;
+        curve = S.target.curve;
+      } else {
+        const wild = Math.random() < 0.28;
+        endX = wild ? side * rnd(80, 125) : rnd(-28, 28);
+        endY = rnd(-24, 24);
+        curve = Math.random() < 0.35;
+      }
+      dur = curve ? rnd(1.0, 1.2) : rnd(0.75, 0.95);
+      const isBall = Math.abs(endX) > ZONE_X || Math.abs(endY) > ZONE_Y;
       S.pitch = {
-        dur, e: 0, ball: isBall, curve,
-        endX: isBall ? side * rnd(78, 125) : rnd(-26, 26),
+        dur, e: 0, ball: isBall, curve, endX, endY,
         startX: curve ? side * 70 : 0,
         swung: false, cpuAt: null,
       };
       if (!batterHuman()) {
         const swingsAt = isBall ? Math.random() < 0.18 : Math.random() < 0.92;
         if (swingsAt) {
-          const err = (Math.random() + Math.random() + Math.random() - 1.5) * 0.27;
+          const err = (Math.random() + Math.random() + Math.random() - 1.5) * (curve ? 0.32 : 0.27);
           S.pitch.cpuAt = IDEAL + err / dur;
         }
       }
@@ -153,8 +174,19 @@
 
       switch (S.state) {
         case 'intro':
-          if (S.t > 1.3) { S.state = 'windup'; S.t = 0; }
+          if (S.t > 1.3) nextPitchState();
           break;
+        case 'choose': {
+          S.chooseT += dt;
+          const pad = TS.input.pad(pitcherIdx());
+          S.reticle.x = clamp(S.reticle.x + pad.x * 230 * dt, -135, 135);
+          S.reticle.y = clamp(S.reticle.y + pad.y * 170 * dt, -75, 75);
+          if ((pad.actP && S.chooseT > 0.35) || S.chooseT > 12) {
+            S.target = { x: S.reticle.x, y: S.reticle.y, curve: S.reticle.y > 0 };
+            S.state = 'windup'; S.t = 0;
+          }
+          break;
+        }
         case 'windup':
           if (S.t > 0.7) newPitch();
           break;
@@ -211,7 +243,7 @@
         if (S.inning >= MAX_INNINGS) return endGame();
         S.inning++; S.half = 0; startHalf(); return;
       }
-      S.state = 'windup'; S.t = 0; S.pitch = null; S.flight = null; S.swing = -1;
+      nextPitchState();
     }
     function endGame() {
       S.state = 'over'; S.t = 0; S.pitch = null; S.flight = null;
@@ -263,14 +295,14 @@
 
     function drawZone(g) {
       g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 2; g.setLineDash([6, 6]);
-      g.strokeRect(PLATE.x - 40, PLATE.y - 100, 80, 78);
+      g.strokeRect(PLATE.x - ZONE_X, PLATE.y - 62 - ZONE_Y, ZONE_X * 2, ZONE_Y * 2);
       g.setLineDash([]);
     }
 
     function pitchPos(p) {
       const u = clamp(p.e / p.dur, 0, 1.25);
       const x = MOUND.x + lerp(p.startX, p.endX, Math.min(1, u)) + (u > 1 ? (u - 1) * p.endX * 2 : 0);
-      const yEnd = PLATE.y - 62;
+      const yEnd = PLATE.y - 62 + (p.endY || 0);
       const y = lerp(MOUND.y - 18, yEnd, Math.pow(Math.min(1, u), 1.25)) + (u > 1 ? (u - 1) * 120 : 0);
       const sc = 0.32 + 0.9 * Math.pow(Math.min(1, u), 1.7);
       return { x, y, sc, u };
@@ -363,7 +395,7 @@
       if ((S.state === 'pitch' || S.state === 'swingmiss' || S.state === 'called') && S.pitch) {
         const bp = pitchPos(S.pitch);
         if (!(S.state === 'swingmiss' && S.t > 0.35)) drawBall(g, bp.x, bp.y, 11 * bp.sc, bp.u * 14);
-      } else if (S.state === 'windup' && S.t > 0.45) {
+      } else if (S.state === 'choose' || (S.state === 'windup' && S.t > 0.45)) {
         drawBall(g, MOUND.x + 14, MOUND.y - 52 - Math.sin(S.t * 3) * 2, 4, 0);
       }
       drawBatter(g);
@@ -375,12 +407,30 @@
         g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(x, yb, r, r * 0.4, 0, 0, TAU); g.fill();
         if (!(f.res === 'homer' && u > 0.96)) drawBall(g, x, y, r, u * 20);
       }
+      // pitcher's reticle
+      if (S.state === 'choose') {
+        const rx = PLATE.x + S.reticle.x, ry = PLATE.y - 62 + S.reticle.y;
+        const strike = Math.abs(S.reticle.x) <= ZONE_X && Math.abs(S.reticle.y) <= ZONE_Y;
+        g.strokeStyle = strike ? '#fcbf49' : '#ff6b6b'; g.lineWidth = 3;
+        g.beginPath(); g.arc(rx, ry, 13 + Math.sin(S.fieldT * 8) * 1.5, 0, TAU); g.stroke();
+        g.beginPath(); g.moveTo(rx - 20, ry); g.lineTo(rx - 7, ry); g.moveTo(rx + 7, ry); g.lineTo(rx + 20, ry);
+        g.moveTo(rx, ry - 20); g.lineTo(rx, ry - 7); g.moveTo(rx, ry + 7); g.lineTo(rx, ry + 20); g.stroke();
+        g.font = '800 14px "Trebuchet MS", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillStyle = '#fff'; g.strokeStyle = '#0b132b'; g.lineWidth = 4;
+        const lbl = S.reticle.y > 0 ? 'CURVEBALL' : 'FASTBALL';
+        g.strokeText(lbl, rx, ry - 30); g.fillText(lbl, rx, ry - 30);
+      }
       // prompt
+      if (S.state === 'choose') {
+        g.font = '800 18px "Trebuchet MS", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillStyle = '#0b132bcc'; TS.chars.rr(g, W / 2 - 250, 556, 500, 30, 15); g.fill();
+        g.fillStyle = '#fff'; g.fillText(NAMES[pitcherIdx()] + ' pitches: ◀ ▶ ▲ ▼ aim (low = curve) · Action to throw', W / 2, 571);
+      }
       if (S.state === 'pitch' && batterHuman() && !S.pitch.swung) {
         g.font = '800 18px "Trebuchet MS", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
         g.fillStyle = '#0b132bcc'; TS.chars.rr(g, W / 2 - 150, 556, 300, 30, 15); g.fill();
         g.fillStyle = '#fff'; g.fillText('Swing when the ball reaches the plate!', W / 2, 571);
-      } else if (S.state === 'windup' && batterHuman()) {
+      } else if ((S.state === 'windup' || S.state === 'choose') && batterHuman() && S.state === 'windup') {
         g.font = '800 18px "Trebuchet MS", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
         g.fillStyle = '#0b132bcc'; TS.chars.rr(g, W / 2 - 110, 556, 220, 30, 15); g.fill();
         g.fillStyle = '#fcbf49'; g.fillText(NAMES[S.half] + ': get ready…', W / 2, 571);
@@ -392,8 +442,9 @@
     const g = {
       title: '⚾ Baseball',
       help: [
-        'Henry bats first against Theo’s pitching, then they swap. 2 innings, 3 outs each — ties go to extra innings.',
+        'Henry bats first while Theo pitches, then they swap. 2 innings, 3 outs each — ties go to extra innings.',
         'Press <b>Action</b> to swing — time it so the bat meets the ball right as it hits the plate. Perfect timing = home runs!',
+        'When it’s <b>your</b> turn to pitch: move the target with the direction keys (high = fastball, low = curveball), keep it in the box for strikes, then press <b>Action</b> to throw.',
         'Swinging at wild pitches (way outside) is a strike. Four balls is a walk.',
       ],
       over: false, result: null, update, draw, debug: S,

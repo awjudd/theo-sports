@@ -84,7 +84,23 @@
       row.appendChild(sw);
       optionsEl.appendChild(row);
     }
-    for (const [key, label, colors] of [['hair', 'Hair', chars.HAIRS], ['skin', 'Skin', chars.SKINS]]) {
+    const hrow = document.createElement('div');
+    hrow.className = 'opt';
+    const hidx = Math.max(0, chars.HAIR_STYLES.findIndex((h) => h[0] === o.hairStyle));
+    hrow.innerHTML =
+      '<div class="label">Hair style</div>' +
+      '<div class="stepper"><button class="step prev" aria-label="Previous">◀</button>' +
+      '<span class="val">' + chars.HAIR_STYLES[hidx][1] + '</span>' +
+      '<button class="step next" aria-label="Next">▶</button></div>';
+    const hstep = (d) => {
+      const n = chars.HAIR_STYLES.length;
+      o.hairStyle = chars.HAIR_STYLES[(hidx + d + n) % n][0];
+      TS.sfx.click(); chars.save(); renderOptions();
+    };
+    hrow.querySelector('.prev').addEventListener('click', () => hstep(-1));
+    hrow.querySelector('.next').addEventListener('click', () => hstep(1));
+    optionsEl.appendChild(hrow);
+    for (const [key, label, colors] of [['hair', 'Hair color', chars.HAIRS], ['skin', 'Skin', chars.SKINS]]) {
       const row = document.createElement('div');
       row.className = 'opt only-sw';
       row.innerHTML = '<div class="label">' + label + '</div>';

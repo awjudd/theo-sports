@@ -19,6 +19,8 @@
     { id: 'glasses', label: 'Glasses', styles: [['none', 'None'], ['round', 'Round'], ['shades', 'Sunglasses'], ['goggles', 'Goggles']] },
   ];
 
+  const HAIR_STYLES = [['spiky', 'Spiky'], ['sidepart', 'Side part'], ['mop', 'Mop top'], ['buzz', 'Buzz cut'], ['curly', 'Curly'], ['mohawk', 'Mohawk'], ['afro', 'Afro'], ['bald', 'Bald']];
+
   const DEFAULTS = {
     henry: {
       hat: { s: 'cap', c: '#3a86ff' },
@@ -28,6 +30,7 @@
       shoes: { s: 'sneakers', c: '#ffffff' },
       glasses: { s: 'none', c: '#2b2d42' },
       hair: '#6b4423',
+      hairStyle: 'spiky',
       skin: '#f1c27d',
     },
     theo: {
@@ -38,6 +41,7 @@
       shoes: { s: 'sneakers', c: '#e63946' },
       glasses: { s: 'none', c: '#2b2d42' },
       hair: '#f2d16b',
+      hairStyle: 'sidepart',
       skin: '#ffdbb4',
     },
   };
@@ -56,6 +60,7 @@
             if (s[slot.id] && slot.styles.some((x) => x[0] === s[slot.id].s)) outfits[who][slot.id] = s[slot.id];
           }
           if (typeof s.hair === 'string') outfits[who].hair = s.hair;
+          if (HAIR_STYLES.some((x) => x[0] === s.hairStyle)) outfits[who].hairStyle = s.hairStyle;
           if (typeof s.skin === 'string') outfits[who].skin = s.skin;
         }
       }
@@ -70,6 +75,7 @@
     const o = outfits[who];
     for (const slot of SLOTS) o[slot.id] = { s: pick(slot.styles)[0], c: pick(PALETTE) };
     o.hair = pick(HAIRS);
+    o.hairStyle = pick(HAIR_STYLES)[0];
     o.skin = pick(SKINS);
     save();
   }
@@ -234,22 +240,45 @@
     }
   }
 
-  function hair(g, who, col) {
+  // Hair behind the head (only the afro needs this).
+  function hairBack(g, style, col) {
+    if (style !== 'afro') return;
     g.fillStyle = col;
+    for (const [x, y, r] of [[0, -94, 25], [-17, -86, 14], [17, -86, 14], [-10, -105, 14], [10, -105, 14]]) {
+      g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    }
+  }
+
+  // Hair on the front of the head.
+  function hair(g, style, col) {
+    if (style === 'bald') return;
+    g.fillStyle = col;
+    if (style === 'mohawk') {
+      g.globalAlpha = 0.35; g.beginPath(); g.arc(0, -82, 19.6, Math.PI, TAU); g.lineTo(17, -90); g.quadraticCurveTo(0, -88, -17, -90); g.closePath(); g.fill(); g.globalAlpha = 1;
+      for (const [x, h] of [[-9, 14], [-3, 20], [3, 22], [9, 15]]) {
+        g.beginPath(); g.moveTo(x - 4, -96); g.lineTo(x, -96 - h); g.lineTo(x + 4, -96); g.closePath(); g.fill();
+      }
+      rr(g, -6, -104, 12, 12, 4); g.fill();
+      return;
+    }
     g.beginPath();
-    g.arc(0, -82, 20.5, Math.PI, TAU);
-    if (who === 'theo') {
-      // longer mop with fringe
-      g.lineTo(19, -80); g.lineTo(15, -78);
+    g.arc(0, -82, style === 'buzz' ? 19.8 : 20.5, Math.PI, TAU);
+    if (style === 'buzz') {
+      g.lineTo(17.5, -90); g.quadraticCurveTo(0, -87, -17.5, -90);
+      g.globalAlpha = 0.55;
+    } else if (style === 'mop') {
+      g.lineTo(19, -80); g.lineTo(15, -80);
       g.quadraticCurveTo(8, -88, 0, -82);
-      g.quadraticCurveTo(-8, -88, -15, -78);
+      g.quadraticCurveTo(-8, -88, -15, -80);
       g.lineTo(-19, -80);
+    } else if (style === 'sidepart') {
+      g.lineTo(17, -88); g.quadraticCurveTo(4, -92, -6, -85); g.quadraticCurveTo(-13, -82, -17, -80);
     } else {
-      g.lineTo(17, -90);
-      g.quadraticCurveTo(0, -84, -17, -90);
+      g.lineTo(17, -90); g.quadraticCurveTo(0, -84, -17, -90);
     }
     g.closePath(); g.fill();
-    if (who === 'henry') {
+    g.globalAlpha = 1;
+    if (style === 'spiky') {
       for (const a of [-1.0, -0.5, 0, 0.5, 1.0]) {
         const ang = -Math.PI / 2 + a;
         const p1 = [Math.cos(ang - 0.28) * 19.5, -82 + Math.sin(ang - 0.28) * 19.5];
@@ -257,10 +286,18 @@
         const tip = [Math.cos(ang) * 25.5, -82 + Math.sin(ang) * 25.5];
         g.beginPath(); g.moveTo(p1[0], p1[1]); g.lineTo(tip[0], tip[1]); g.lineTo(p2[0], p2[1]); g.closePath(); g.fill();
       }
-    } else {
-      rr(g, -21, -86, 6, 16, 3); g.fill();
-      rr(g, 15, -86, 6, 16, 3); g.fill();
-      g.beginPath(); g.arc(-5, -103, 6, 0, TAU); g.arc(6, -104, 6, 0, TAU); g.fill();
+    } else if (style === 'curly' || style === 'afro') {
+      const n = 7;
+      for (let i = 0; i < n; i++) {
+        const ang = Math.PI + (i / (n - 1)) * Math.PI;
+        g.beginPath(); g.arc(Math.cos(ang) * 17, -82 + Math.sin(ang) * 17, 6.5, 0, TAU); g.fill();
+      }
+    } else if (style === 'sidepart') {
+      rr(g, -21, -88, 5, 11, 2.5); g.fill(); rr(g, 16, -88, 5, 11, 2.5); g.fill();
+      g.strokeStyle = shade(col, -0.35); g.lineWidth = 1.4; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-6, -85); g.quadraticCurveTo(-3, -95, 4, -100); g.stroke();
+    } else if (style === 'mop') {
+      rr(g, -21, -88, 5, 10, 2.5); g.fill(); rr(g, 16, -88, 5, 10, 2.5); g.fill();
     }
   }
 
@@ -388,14 +425,15 @@
     bib(g, o);
     arm(g, o, 1, armR);
     necklace(g, o.necklace);
+    hairBack(g, o.hairStyle, o.hair);
     face(g, o);
-    hair(g, who, o.hair);
+    hair(g, o.hairStyle, o.hair);
     features(g, o, t, mood);
     glasses(g, o.glasses);
     hat(g, o.hat);
     g.restore();
   }
 
-  TS.chars = { PALETTE, SKINS, HAIRS, SLOTS, DEFAULTS, outfits, load, save, reset, randomize, draw, shade, rr };
+  TS.chars = { PALETTE, SKINS, HAIRS, HAIR_STYLES, SLOTS, DEFAULTS, outfits, load, save, reset, randomize, draw, shade, rr };
   load();
 })();
