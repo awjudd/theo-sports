@@ -30,11 +30,31 @@
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
 
+  // ---------- scale menus to fit the window ----------
+  const wheelCanvas = $('#wheel');
+  const hiRes = [[titleCanvas0(), 560, 320], [$('#preview'), 320, 400], [wheelCanvas, 560, 610]];
+  function titleCanvas0() { return $('#title-canvas'); }
+  function fitUI() {
+    if (current === 'game') return;
+    const el = screens[current];
+    const w = el.offsetWidth, h = el.offsetHeight;
+    if (!w || !h) return;
+    const s = Math.max(0.4, Math.min(3.2, (window.innerWidth - 24) / w, (window.innerHeight - 24) / h));
+    el.style.transform = 'scale(' + s.toFixed(3) + ')';
+    const k = Math.max(1, Math.min(3, s * (window.devicePixelRatio || 1)));
+    for (const [cv, bw, bh] of hiRes) {
+      const nw = Math.round(bw * k);
+      if (cv.width !== nw) { cv.width = nw; cv.height = Math.round(bh * k); }
+    }
+  }
+
   // ---------- title ----------
   const titleCanvas = $('#title-canvas');
   const tg = titleCanvas.getContext('2d');
   function drawTitle() {
-    tg.clearRect(0, 0, titleCanvas.width, titleCanvas.height);
+    const k = titleCanvas.width / 560;
+    tg.setTransform(k, 0, 0, k, 0, 0);
+    tg.clearRect(0, 0, 560, 320);
     const bounce = (o) => Math.abs(Math.sin(time * 3 + o)) * 14;
     chars.draw(tg, 'henry', chars.outfits.henry, { x: 175, y: 300, scale: 2.5, t: time, cheer: true, lift: bounce(0) });
     chars.draw(tg, 'theo', chars.outfits.theo, { x: 385, y: 300, scale: 2.5, t: time + 1, cheer: true, lift: bounce(1.4), facing: -1 });
@@ -111,7 +131,9 @@
   }
 
   function drawPreview() {
-    pg.clearRect(0, 0, preview.width, preview.height);
+    const k = preview.width / 320;
+    pg.setTransform(k, 0, 0, k, 0, 0);
+    pg.clearRect(0, 0, 320, 400);
     chars.draw(pg, lockerWho, chars.outfits[lockerWho], { x: 160, y: 365, scale: 2.9, t: time, cheer: false });
   }
 
@@ -301,6 +323,7 @@
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     time += dt;
+    fitUI();
 
     if (current === 'title') drawTitle();
     else if (current === 'locker') drawPreview();

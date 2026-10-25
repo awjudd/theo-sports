@@ -18,11 +18,12 @@ body {
   -webkit-user-select: none;
   user-select: none;
 }
-main { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
-body.in-game main { padding: 8px; }
-body.in-game { overflow: hidden; }
-#wheel { max-height: 66vh; width: auto; }
-#preview { max-height: 56vh; width: auto; }
+main { height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 8px; }
+body { overflow: hidden; }
+#screen-title, #screen-locker, #screen-wheel { width: 1000px; max-width: none; transform-origin: center center; }
+#title-canvas { width: 560px; height: 320px; }
+#preview { width: 320px; height: 400px; }
+#wheel { width: 560px; height: 610px; }
 .screen { display: none; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 1200px; }
 #screen-game { max-width: none; }
 .screen.active { display: flex; }
@@ -32,7 +33,8 @@ h1 span { color: var(--accent); font-size: 1.35em; letter-spacing: 6px; }
 h2 { margin: 0; font-size: 30px; text-shadow: 0 3px 0 #0006; }
 .hint { opacity: .75; margin: 0; text-align: center; }
 
-canvas { max-width: 100%; height: auto; display: block; }
+canvas { display: block; }
+#game { max-width: 100%; height: auto; }
 #title-canvas { filter: drop-shadow(0 8px 12px #0008); }
 
 .btn {
@@ -68,7 +70,7 @@ canvas { max-width: 100%; height: auto; display: block; }
 .tab { font: inherit; font-weight: 800; font-size: 18px; padding: 8px 22px; border-radius: 12px; border: 3px solid transparent; background: var(--panel2); color: var(--text); cursor: pointer; }
 .tab[data-who="henry"].active { background: var(--henry); }
 .tab[data-who="theo"].active { background: var(--theo); }
-.options { background: var(--panel); border-radius: 20px; padding: 12px 16px; max-height: 520px; overflow-y: auto; box-shadow: inset 0 0 0 3px #ffffff14; }
+.options { background: var(--panel); border-radius: 20px; padding: 12px 16px; box-shadow: inset 0 0 0 3px #ffffff14; }
 .opt { display: grid; grid-template-columns: 90px 1fr; gap: 6px 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid #ffffff14; }
 .opt:last-child { border-bottom: 0; }
 .opt .label { font-weight: 800; font-size: 17px; }
@@ -103,13 +105,3 @@ canvas { max-width: 100%; height: auto; display: block; }
 .card .ctrl { font-size: 14px; opacity: .8; }
 .card canvas { border-radius: 14px; background: radial-gradient(circle at 50% 70%, #3b5ba5, #1b2a52); }
 
-@media (max-width: 760px) {
-  .locker { grid-template-columns: 1fr; }
-  .options { max-height: none; }
-}
-
-@media (min-width: 1100px) and (min-height: 800px) {
-  .locker { grid-template-columns: 400px 1fr; }
-  .options { max-height: 600px; }
-  .opt .label, .tab, .mode { font-size: 18px; }
-}

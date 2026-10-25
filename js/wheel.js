@@ -62,7 +62,9 @@
       }
     }
     draw() {
-      const g = this.g, W = this.c.width, H = this.c.height;
+      const g = this.g, W = 560, H = 610;
+      const k = this.c.width / W;
+      g.setTransform(k, 0, 0, k, 0, 0);
       const cx = W / 2, cy = H / 2 + 20, R = 240, n = SPORTS.length, seg = this.seg;
       g.clearRect(0, 0, W, H);
 
