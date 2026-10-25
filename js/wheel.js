@@ -5,9 +5,14 @@
   const SPORTS = [
     { id: 'hockey', label: 'Hockey', icon: '🏒', color: '#4cc9f0' },
     { id: 'baseball', label: 'Baseball', icon: '⚾', color: '#e63946' },
+    { id: 'basketball', label: 'Basketball', icon: '🏀', color: '#f77f00' },
     { id: 'soccer', label: 'Soccer', icon: '⚽', color: '#6a994e' },
-    { id: 'discgolf', label: 'Disc Golf', icon: '🥏', color: '#f77f00' },
-    { id: 'lacrosse', label: 'Lacrosse', icon: '🥍', color: '#8338ec' },
+    { id: 'bowling', label: 'Bowling', icon: '🎳', color: '#8338ec' },
+    { id: 'discgolf', label: 'Disc Golf', icon: '🥏', color: '#e9a100' },
+    { id: 'football', label: 'Field Goals', icon: '🏈', color: '#8d5524' },
+    { id: 'lacrosse', label: 'Lacrosse', icon: '🥍', color: '#2a9d8f' },
+    { id: 'archery', label: 'Archery', icon: '🏹', color: '#d6336c' },
+    { id: 'hurdles', label: 'Hurdles', icon: '🏃', color: '#3a86ff' },
   ];
   const TAU = Math.PI * 2;
 
@@ -92,13 +97,13 @@
         g.textBaseline = 'middle';
         g.fillStyle = '#fff';
         g.textAlign = 'right';
-        g.font = '800 26px "Trebuchet MS", sans-serif';
+        g.font = '800 19px "Trebuchet MS", sans-serif';
         g.shadowColor = '#0008'; g.shadowBlur = 4; g.shadowOffsetY = 2;
-        g.fillText(SPORTS[i].label, R - 18, 0);
+        g.fillText(SPORTS[i].label, R - 16, 0);
         g.shadowBlur = 0; g.shadowOffsetY = 0;
         g.textAlign = 'center';
-        g.font = '46px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-        g.save(); g.translate(R * 0.3, 0); g.rotate(Math.PI / 2); g.fillText(SPORTS[i].icon, 0, 0); g.restore();
+        g.font = '34px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+        g.save(); g.translate(R * 0.37, 0); g.rotate(Math.PI / 2); g.fillText(SPORTS[i].icon, 0, 0); g.restore();
         g.restore();
       }
       // studs
