@@ -16,6 +16,17 @@
     gauss: () => Math.random() + Math.random() + Math.random() - 1.5, // roughly ±1.5
     tri: (t) => Math.abs((t % 2) - 1), // 0..1..0 triangle wave, period 2
 
+    // Detects left/right alternation. Call with the pad's x axis each frame; returns true on each new step.
+    stepper() {
+      let last = 0;
+      return (x) => {
+        let step = false;
+        if (x !== 0 && x !== last) step = true;
+        if (x !== 0) last = x;
+        return step;
+      };
+    },
+
     panel(g, x, y, w, h, r, fill) {
       TS.chars.rr(g, x, y, w, h, r || 14);
       g.fillStyle = fill || '#0b132bdd';

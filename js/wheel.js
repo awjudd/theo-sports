@@ -12,6 +12,12 @@
     { id: 'football', blurb: 'Kick through the uprights', label: 'Field Goals', icon: '🏈', color: '#8d5524' },
     { id: 'lacrosse', blurb: 'Scoop, throw, score', label: 'Lacrosse', icon: '🥍', color: '#2a9d8f' },
     { id: 'archery', blurb: 'Steady aim, hit the bullseye', label: 'Archery', icon: '🏹', color: '#d6336c' },
+    { id: 'penalty', blurb: 'Shoot or save the spot kicks', label: 'Penalties', icon: '🥅', color: '#c9184a' },
+    { id: 'sumo', blurb: 'Shove them out of the ring', label: 'Sumo', icon: '🥋', color: '#6d597a' },
+    { id: 'swimming', blurb: 'Race two lengths, flip turn', label: 'Swimming', icon: '🏊', color: '#0096c7' },
+    { id: 'tugofwar', blurb: 'Tap fast and pull hardest', label: 'Tug of War', icon: '🪢', color: '#9c6644' },
+    { id: 'dodgeball', blurb: 'Dodge, catch, throw', label: 'Dodgeball', icon: '🔴', color: '#d00000' },
+    { id: 'minigolf', blurb: 'Windmills, bumpers and sand', label: 'Mini Putt', icon: '⛳', color: '#2d936c' },
     { id: 'hurdles', blurb: 'Sprint and jump to win', label: 'Hurdles', icon: '🏃', color: '#3a86ff' },
   ];
   const TAU = Math.PI * 2;
@@ -97,13 +103,13 @@
         g.textBaseline = 'middle';
         g.fillStyle = '#fff';
         g.textAlign = 'right';
-        g.font = '800 19px "Trebuchet MS", sans-serif';
+        g.font = '800 ' + (n > 12 ? 15 : 19) + 'px "Trebuchet MS", sans-serif';
         g.shadowColor = '#0008'; g.shadowBlur = 4; g.shadowOffsetY = 2;
         g.fillText(SPORTS[i].label, R - 16, 0);
         g.shadowBlur = 0; g.shadowOffsetY = 0;
         g.textAlign = 'center';
-        g.font = '34px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-        g.save(); g.translate(R * 0.37, 0); g.rotate(Math.PI / 2); g.fillText(SPORTS[i].icon, 0, 0); g.restore();
+        g.font = (n > 12 ? 28 : 34) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+        g.save(); g.translate(R * (n > 12 ? 0.4 : 0.37), 0); g.rotate(Math.PI / 2); g.fillText(SPORTS[i].icon, 0, 0); g.restore();
         g.restore();
       }
       // studs
