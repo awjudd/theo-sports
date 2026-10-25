@@ -25,6 +25,7 @@
 
   function show(name) {
     current = name;
+    document.body.classList.toggle('in-game', name === 'game');
     for (const k in screens) screens[k].classList.toggle('active', k === name);
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
@@ -158,6 +159,13 @@
   // ---------- game lifecycle ----------
   const gameCanvas = $('#game');
   const gctx = gameCanvas.getContext('2d');
+  // Keep the backing store matched to the on-screen size so it stays sharp when large.
+  function resizeGame() {
+    const cssW = gameCanvas.parentElement.clientWidth || 960;
+    const w = Math.min(2560, Math.max(960, Math.round(cssW * (window.devicePixelRatio || 1))));
+    if (gameCanvas.width !== w) { gameCanvas.width = w; gameCanvas.height = Math.round(w * 0.625); }
+  }
+  window.addEventListener('resize', () => { if (current === 'game') resizeGame(); });
   const overlay = $('#overlay');
   const card = $('#overlay-card');
   let game = null;
@@ -268,6 +276,16 @@
   const syncMute = () => { muteBtn.textContent = TS.sfx.isMuted() ? '🔇' : '🔊'; };
   muteBtn.addEventListener('click', () => { TS.sfx.toggleMute(); syncMute(); });
   syncMute();
+  const fsBtn = $('#fs');
+  const fsOn = () => document.fullscreenElement || document.webkitFullscreenElement;
+  fsBtn.addEventListener('click', () => {
+    const el = document.documentElement;
+    try {
+      if (fsOn()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+    } catch (e) {}
+  });
+  document.addEventListener('fullscreenchange', () => { fsBtn.textContent = fsOn() ? '✕' : '⛶'; if (current === 'game') resizeGame(); });
 
   window.addEventListener('keydown', (e) => {
     if (e.repeat) return;
@@ -303,6 +321,9 @@
       } else if (gstate === 'result') {
         drawResult();
       }
+      resizeGame();
+      const k = gameCanvas.width / 960;
+      gctx.setTransform(k, 0, 0, k, 0, 0);
       game.draw(gctx);
     }
 
