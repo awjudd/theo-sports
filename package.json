@@ -1,0 +1,11 @@
+{
+  "name": "theo-sports",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Henry & Theo Sports - a browser sports game",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy"
+  }
+}

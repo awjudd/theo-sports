@@ -26,3 +26,10 @@ A browser game — no build step, no dependencies. Open `index.html` (or serve t
 - `js/sports/baseball.js`, `js/sports/discgolf.js`, `basketball.js`, `bowling.js`, `football.js`, `archery.js`, `hurdles.js`, `penalty.js`, `sumo.js`, `swimming.js`, `tugofwar.js`, `dodgeball.js`, `minigolf.js`, `volleyball.js`, `whackamole.js`, `quickdraw.js`, `simon.js`, `cornhole.js`, `darts.js`, `skiing.js`, `racing.js`, `boxing.js`, `curling.js`, `longdrive.js`, `jumprope.js`, `fishing.js` – the other games (air hockey lives in `arena.js`)
 - `js/sports/common.js` – shared HUD helpers for the contest-style sports
 - `js/main.js` – screens, locker-room UI and game lifecycle
+
+## Deploying to Cloudflare
+
+The repo is set up for Cloudflare's Git integration (static assets via Workers):
+
+- Build command: `npm run build` (copies the site into `dist/`)
+- Deploy command: `npx wrangler deploy` (config in `wrangler.jsonc`)
