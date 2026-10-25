@@ -15,6 +15,11 @@
       kick: 840, goalH: 140, collRest: 0.55, ai: 0.9,
       help: ['Push the puck with your body, or hit <b>Action</b> to slap it.', 'Score in the other goal — the net on the far side. First to lead after 60 seconds wins!'],
     },
+    airhockey: {
+      title: '💨 Air Hockey', time: 60, speed: 340, slip: 16, pr: 27, br: 14, damp: 0.1, wallRest: 0.97,
+      kick: 900, goalH: 200, collRest: 0.92, ai: 0.95,
+      help: ['Slide your paddle into the puck to knock it into the other goal — the puck barely slows down, so watch the bounces!', 'Press <b>Action</b> near the puck to smash it harder. Most goals in 60 seconds wins; ties go to overtime.'],
+    },
     soccer: {
       title: '⚽ Soccer', time: 60, speed: 235, slip: 12, pr: 18, br: 12, damp: 1.5, wallRest: 0.75,
       kick: 720, goalH: 170, collRest: 0.4, ai: 0.88,
@@ -33,6 +38,8 @@
 
   function create(kind, ctx) {
     const C = CFG[kind];
+    const look = kind === 'airhockey' ? 'hockey' : kind; // draws like hockey, tinted
+    const AIR = kind === 'airhockey';
     const mid = (L + R) / 2;
     const players = [0, 1].map((i) => ({
       idx: i, who: ctx.players[i].who, outfit: ctx.players[i].outfit, human: ctx.players[i].human,
@@ -320,8 +327,8 @@
       g.fillStyle = '#0d1426'; g.fillRect(0, 96, W, 14);
       g.fillRect(0, B, W, H - B);
 
-      if (kind === 'hockey') {
-        g.fillStyle = '#e6f6fd'; g.fillRect(L, T, R - L, B - T);
+      if (look === 'hockey') {
+        g.fillStyle = AIR ? '#1b3f7a' : '#e6f6fd'; g.fillRect(L, T, R - L, B - T);
         g.fillStyle = '#ffffff55';
         for (let i = 0; i < 18; i++) { g.fillRect(L + ((i * 97) % (R - L)), T + ((i * 53) % (B - T)), 60, 2); }
         g.strokeStyle = '#d63c4a'; g.lineWidth = 6; g.beginPath(); g.moveTo((L + R) / 2, T); g.lineTo((L + R) / 2, B); g.stroke();
@@ -352,7 +359,7 @@
         }
       }
       // boards
-      g.strokeStyle = kind === 'hockey' ? '#f4f7ff' : '#ffffffee'; g.lineWidth = 8;
+      g.strokeStyle = look === 'hockey' ? '#f4f7ff' : '#ffffffee'; g.lineWidth = 8;
       g.beginPath(); g.moveTo(L, CY - C.goalH / 2); g.lineTo(L, T); g.lineTo(R, T); g.lineTo(R, CY - C.goalH / 2); g.moveTo(L, CY + C.goalH / 2); g.lineTo(L, B); g.lineTo(R, B); g.lineTo(R, CY + C.goalH / 2); g.stroke();
       // goals
       for (const side of [-1, 1]) {
@@ -374,8 +381,8 @@
       g.fillStyle = 'rgba(0,0,0,.3)';
       g.beginPath(); g.ellipse(b.x, b.y + b.r * 0.9, b.r * 1.0, b.r * 0.45, 0, 0, TAU); g.fill();
       const y = b.y - b.r * 0.5;
-      if (kind === 'hockey') {
-        g.fillStyle = '#111'; g.fillRect(b.x - b.r, y - 3, b.r * 2, 7);
+      if (look === 'hockey') {
+        g.fillStyle = AIR ? '#ffd23f' : '#111'; g.fillRect(b.x - b.r, y - 3, b.r * 2, 7);
         g.beginPath(); g.ellipse(b.x, y - 3, b.r, b.r * 0.5, 0, 0, TAU); g.fill();
         g.fillStyle = '#444'; g.beginPath(); g.ellipse(b.x, y - 3, b.r * 0.7, b.r * 0.32, 0, 0, TAU); g.fill();
       } else if (kind === 'soccer') {
@@ -393,6 +400,13 @@
 
     function drawStick(g, p) {
       if (kind === 'soccer') return;
+      if (AIR) {
+        const sw = p.swing > 0 ? 3 : 0;
+        g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(p.x + 3, p.y + 20, p.r, p.r * 0.55, 0, 0, TAU); g.fill();
+        g.fillStyle = TEAM[p.idx]; g.beginPath(); g.ellipse(p.x, p.y + 14 - sw, p.r, p.r * 0.7, 0, 0, TAU); g.fill();
+        g.fillStyle = '#ffffff55'; g.beginPath(); g.ellipse(p.x, p.y + 14 - sw, p.r * 0.55, p.r * 0.38, 0, 0, TAU); g.fill();
+        return;
+      }
       const swing = p.swing > 0 ? Math.sin((1 - p.swing / 0.25) * Math.PI) * 0.9 : 0;
       const ang = Math.atan2(p.fy, p.fx) + swing * (p.fx >= 0 ? 1 : -1);
       const len = kind === 'hockey' ? 38 : 40;
@@ -490,5 +504,5 @@
     return g;
   }
 
-  ['hockey', 'soccer', 'lacrosse'].forEach((k) => { TS.sports[k] = (ctx) => create(k, ctx); });
+  ['hockey', 'airhockey', 'soccer', 'lacrosse'].forEach((k) => { TS.sports[k] = (ctx) => create(k, ctx); });
 })();

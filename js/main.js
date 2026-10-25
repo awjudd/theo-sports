@@ -174,6 +174,7 @@
     pendingSport = sport.id;
     wheelTimer = 1.6;
   });
+  wheel.onTick = (sp) => { wheelResult.textContent = sp.icon + ' ' + sp.label; };
   function doSpin() {
     if (current !== 'wheel') return;
     if (wheel.spin()) { wheelResult.innerHTML = '&nbsp;'; pendingSport = null; TS.sfx.click(); }

@@ -18,6 +18,16 @@
     { id: 'tugofwar', blurb: 'Tap fast and pull hardest', label: 'Tug of War', icon: '🪢', color: '#9c6644' },
     { id: 'dodgeball', blurb: 'Dodge, catch, throw', label: 'Dodgeball', icon: '🔴', color: '#d00000' },
     { id: 'minigolf', blurb: 'Windmills, bumpers and sand', label: 'Mini Putt', icon: '⛳', color: '#2d936c' },
+    { id: 'airhockey', blurb: 'Fast puck, bouncy table', label: 'Air Hockey', icon: '💨', color: '#1d4ed8' },
+    { id: 'volleyball', blurb: 'Bump, set, spike', label: 'Volleyball', icon: '🏐', color: '#f59e0b' },
+    { id: 'whackamole', blurb: 'Whack them all, not the bombs', label: 'Whack-a-Mole', icon: '🔨', color: '#7c4a21' },
+    { id: 'quickdraw', blurb: 'Fastest finger wins', label: 'Quick Draw', icon: '🤠', color: '#c2410c' },
+    { id: 'simon', blurb: 'Copy the pattern', label: 'Simon Says', icon: '🎨', color: '#7e22ce' },
+    { id: 'cornhole', blurb: 'Bags in the hole', label: 'Cornhole', icon: '🎒', color: '#0f766e' },
+    { id: 'darts', blurb: 'Aim for the bullseye', label: 'Darts', icon: '🎯', color: '#b91c1c' },
+    { id: 'skiing', blurb: 'Downhill slalom', label: 'Skiing', icon: '⛷️', color: '#38bdf8' },
+    { id: 'racing', blurb: 'Three laps, turbo boost', label: 'Racing', icon: '🏎️', color: '#dc2626' },
+    { id: 'boxing', blurb: 'Jab, guard, knock out', label: 'Boxing', icon: '🥊', color: '#be123c' },
     { id: 'hurdles', blurb: 'Sprint and jump to win', label: 'Hurdles', icon: '🏃', color: '#3a86ff' },
   ];
   const TAU = Math.PI * 2;
@@ -64,7 +74,7 @@
       const e = 1 - Math.pow(1 - u, 4);
       this.rot = this.from + (this.to - this.from) * e;
       const idx = this.idxAt(this.rot);
-      if (idx !== this.lastIdx) { this.lastIdx = idx; this.kick = 1; TS.sfx.tick(); }
+      if (idx !== this.lastIdx) { this.lastIdx = idx; this.kick = 1; TS.sfx.tick(); if (this.onTick) this.onTick(SPORTS[idx]); }
       if (u >= 1) {
         this.spinning = false;
         this.winner = this.target;
@@ -102,14 +112,20 @@
         g.rotate(a0 + seg / 2);
         g.textBaseline = 'middle';
         g.fillStyle = '#fff';
-        g.textAlign = 'right';
-        g.font = '800 ' + (n > 12 ? 15 : 19) + 'px "Trebuchet MS", sans-serif';
-        g.shadowColor = '#0008'; g.shadowBlur = 4; g.shadowOffsetY = 2;
-        g.fillText(SPORTS[i].label, R - 16, 0);
-        g.shadowBlur = 0; g.shadowOffsetY = 0;
-        g.textAlign = 'center';
-        g.font = (n > 12 ? 28 : 34) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-        g.save(); g.translate(R * (n > 12 ? 0.4 : 0.37), 0); g.rotate(Math.PI / 2); g.fillText(SPORTS[i].icon, 0, 0); g.restore();
+        if (n > 16) {
+          g.textAlign = 'center';
+          g.font = '30px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+          g.save(); g.translate(R * 0.8, 0); g.rotate(Math.PI / 2); g.fillText(SPORTS[i].icon, 0, 0); g.restore();
+        } else {
+          g.textAlign = 'right';
+          g.font = '800 ' + (n > 12 ? 15 : 19) + 'px "Trebuchet MS", sans-serif';
+          g.shadowColor = '#0008'; g.shadowBlur = 4; g.shadowOffsetY = 2;
+          g.fillText(SPORTS[i].label, R - 16, 0);
+          g.shadowBlur = 0; g.shadowOffsetY = 0;
+          g.textAlign = 'center';
+          g.font = (n > 12 ? 28 : 34) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+          g.save(); g.translate(R * (n > 12 ? 0.4 : 0.37), 0); g.rotate(Math.PI / 2); g.fillText(SPORTS[i].icon, 0, 0); g.restore();
+        }
         g.restore();
       }
       // studs

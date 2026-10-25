@@ -106,15 +106,15 @@ canvas { display: block; }
 .card canvas { border-radius: 14px; background: radial-gradient(circle at 50% 70%, #3b5ba5, #1b2a52); }
 
 
-.sport-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; width: 100%; }
+.sport-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; width: 100%; }
 .sport-card {
   font: inherit; color: var(--text); cursor: pointer; text-align: center;
   background: var(--panel); border: 3px solid var(--c, #ffffff33); border-radius: 18px;
-  padding: 16px 10px 14px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px;
   box-shadow: 0 5px 0 #0006; transition: transform .1s, background .15s;
 }
 .sport-card:hover, .sport-card:focus-visible { transform: translateY(-4px); background: var(--panel2); outline: none; }
 .sport-card:active { transform: translateY(1px); }
-.sport-card .ico { font-size: 54px; line-height: 1.1; }
-.sport-card .nm { font-weight: 800; font-size: 20px; }
-.sport-card .bl { font-size: 13px; opacity: .75; min-height: 32px; }
+.sport-card .ico { font-size: 44px; line-height: 1.1; }
+.sport-card .nm { font-weight: 800; font-size: 17px; }
+.sport-card .bl { font-size: 12px; opacity: .75; min-height: 30px; }
